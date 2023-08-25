@@ -1,7 +1,7 @@
 package com.bhaskar.questionservice.service;
 
 
-import com.bhaskar.questionservice.dao.QuestionDao;
+import com.bhaskar.questionservice.repository.QuestionRepo;
 import com.bhaskar.questionservice.model.Question;
 import com.bhaskar.questionservice.model.QuestionWrapper;
 import com.bhaskar.questionservice.model.Response;
@@ -21,30 +21,30 @@ import java.util.Optional;
 public class QuestionService {
 
     @Autowired
-    QuestionDao questionDao;
+    QuestionRepo questionRepo;
 
     public ResponseEntity<List<Question>> getAllQuestions() {
-        return new ResponseEntity<>(questionDao.findAll(),HttpStatus.OK);
+        return new ResponseEntity<>(questionRepo.findAll(),HttpStatus.OK);
     }
 
     public ResponseEntity<List<Question>> getQuestionsByCategory(String category) {
-        return  new ResponseEntity<>(questionDao.findByCategory(category), HttpStatus.OK);
+        return  new ResponseEntity<>(questionRepo.findByCategory(category), HttpStatus.OK);
     }
 
     public  ResponseEntity<String> addQuestion(Question question) {
-          questionDao.save(question);
+          questionRepo.save(question);
           return  new ResponseEntity<>("Question added", HttpStatus.ACCEPTED);
     }
 
     public ResponseEntity<String> deleteQuestion(Integer id) {
-        questionDao.deleteById(id);
+        questionRepo.deleteById(id);
         return  new ResponseEntity<>("Question deleted", HttpStatus.OK);
 
     }
 
     public ResponseEntity<String> updateQuestion(Integer id, Question question) {
 
-            Question existingQuestion = questionDao.findById(id).get();
+            Question existingQuestion = questionRepo.findById(id).get();
                         existingQuestion.setQuestionTitle(question.getQuestionTitle());
                         existingQuestion.setCategory(question.getCategory());
                         existingQuestion.setOption1(question.getOption1());
@@ -53,14 +53,14 @@ public class QuestionService {
                         existingQuestion.setOption4(question.getOption4());
                         existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
                         existingQuestion.setRightAnswer(question.getRightAnswer());
-                questionDao.save(existingQuestion);
+                questionRepo.save(existingQuestion);
                 return  new ResponseEntity<>("Question Updated", HttpStatus.OK);
 
     }
 
     public ResponseEntity<Question> updateQuestionByField(Integer id, Map<String,Object> fields) {
 
-        Optional<Question> existingQuestion = questionDao.findById(id);
+        Optional<Question> existingQuestion = questionRepo.findById(id);
 
         if (existingQuestion.isPresent()) {
             fields.forEach((key, value) -> {
@@ -68,14 +68,14 @@ public class QuestionService {
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, existingQuestion.get(), value);
             });
-            Question save = questionDao.save(existingQuestion.get());
+            Question save = questionRepo.save(existingQuestion.get());
             return  new ResponseEntity<>(save,HttpStatus.ACCEPTED);
         }
         return ResponseEntity.badRequest().build();
     }
 
     public ResponseEntity<List<Integer>> getQuestionsForQuiz(String category, Integer numQuestions) {
-        List<Integer> randomQuestionsByCategory = questionDao.findRandomQuestionsByCategory(category,numQuestions);
+        List<Integer> randomQuestionsByCategory = questionRepo.findRandomQuestionsByCategory(category,numQuestions);
         return  new ResponseEntity<>(randomQuestionsByCategory,HttpStatus.CREATED);
     }
 
@@ -83,10 +83,10 @@ public class QuestionService {
 List<QuestionWrapper>   wrappers = new ArrayList<>();
 
         List<Question> questions = new ArrayList<>();
-                questionDao.findAllById(questionIds);
+                questionRepo.findAllById(questionIds);
 
                 for(Integer id: questionIds){
-                    questions.add(questionDao.findById(id).get());
+                    questions.add(questionRepo.findById(id).get());
                 }
 
         for (Question q: questions){
@@ -107,7 +107,7 @@ List<QuestionWrapper>   wrappers = new ArrayList<>();
     public ResponseEntity<Integer> getScore(List<Response> responses) {
         Integer right = 0;
         for (Response response : responses) {
-            Optional<Question> question = questionDao.findById(response.getId());
+            Optional<Question> question = questionRepo.findById(response.getId());
             if(response.getResponse().equals(question.get().getRightAnswer()))
                 right++;
         }
