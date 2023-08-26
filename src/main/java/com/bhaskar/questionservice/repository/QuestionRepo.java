@@ -21,4 +21,6 @@ public interface QuestionRepo extends JpaRepository<Question, Integer> {
 
 
 
+  @Query(value = "SELECT DISTINCT category FROM question",nativeQuery = true)
+    List<String> getCategories();
 }
