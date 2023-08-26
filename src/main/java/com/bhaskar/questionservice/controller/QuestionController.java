@@ -5,14 +5,18 @@ import com.bhaskar.questionservice.model.Question;
 import com.bhaskar.questionservice.model.QuestionWrapper;
 import com.bhaskar.questionservice.model.Response;
 import com.bhaskar.questionservice.service.QuestionService;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@Validated
 @RequestMapping("question")
 public class QuestionController {
 
@@ -53,7 +57,7 @@ public class QuestionController {
     }
 
     @GetMapping("generate")
-public ResponseEntity<List<Integer>> getQuestionsForQuiz(@RequestParam String category,@RequestParam Integer numQuestions){
+public ResponseEntity<List<Integer>> getQuestionsForQuiz(@NotNull @RequestParam String category, @RequestParam Integer numQuestions){
         return questionService.getQuestionsForQuiz(category,numQuestions);
     }
 

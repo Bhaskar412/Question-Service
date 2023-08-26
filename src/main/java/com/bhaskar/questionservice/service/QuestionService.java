@@ -1,6 +1,7 @@
 package com.bhaskar.questionservice.service;
 
 
+import com.bhaskar.questionservice.exception.CategoryNotFoundException;
 import com.bhaskar.questionservice.repository.QuestionRepo;
 import com.bhaskar.questionservice.model.Question;
 import com.bhaskar.questionservice.model.QuestionWrapper;
@@ -28,7 +29,11 @@ public class QuestionService {
     }
 
     public ResponseEntity<List<Question>> getQuestionsByCategory(String category) {
-        return  new ResponseEntity<>(questionRepo.findByCategory(category), HttpStatus.OK);
+         List<String> categories = questionRepo.getCategories();
+         if(categories.contains(category))
+             return  new ResponseEntity<>(questionRepo.findByCategory(category), HttpStatus.OK);
+         else
+             throw new RuntimeException("There is no Category with name : "+category);
     }
 
     public  ResponseEntity<String> addQuestion(Question question) {
